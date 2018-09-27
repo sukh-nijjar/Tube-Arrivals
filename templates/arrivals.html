@@ -1,0 +1,43 @@
+{%extends "master_layout.html"%}
+{%block content%}
+  {% if msg %}
+    <div class="row text-center">
+      <h1 class="central col-sm-6">{{station_info["station"]}}</h1>
+      <h1 class="status col-sm-6">LINE STATUS - {{line_status}}</h1>
+    </div>
+    <div class="display_boards row">
+      <div class="col-sm-2"></div>
+      <div class="table-responsive col-sm-8">
+        <table class="table table-bordered table-dark text-warning text-center">
+          <tr><th colspan="6">{{msg}}</th></tr>
+          <tr><td class="text-danger font-weight-bold">LINE STATUS : {{line_status}}</td></tr>
+        </table>
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+  {% else %}
+    <div class="row text-center">
+      <h1 class="central col-sm-6">{{arrivals[0]["station"] + " - " + arrivals[0]["line"] + " Line"}}</h1>
+      <h1 class="status col-sm-6">LINE STATUS - {{line_status}}</h1>
+    </div>
+    <div class="display_boards row">
+      <div class="col-sm-2"></div>
+      <div class="table-responsive col-sm-8">
+        <table class="table table-bordered table-dark text-warning ">
+          <tr class="text-center"><th colspan="6">{{arrivals[0]["platform"]}}</th></tr>
+        {% for arrival in arrivals %}
+          <tr>
+            <td class="text-center">{{loop.index}}</td>
+            <td>{{arrival["towards"]}}</td>
+            <td class="text-center">{{arrival["arriving_in"]}} mins</td>
+            <td class="text-center">{{arrival["time_expected"]}}</td>
+            <td>{{arrival["currently_at"]}}</td>
+          </tr>
+        {% endfor %}
+        </table>
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+  {% endif %}
+  <a href="/">Perform another search</a>
+{%endblock%}

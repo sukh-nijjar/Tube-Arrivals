@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css?family=Codystar|Gruppo|Julius+Sans+One|Montserrat|Text+Me+One');
+
+
+body{
+    background-image: url("../images/tube_escalator_mono.jpg");
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100vh;
+}
+
+h1{
+  font-family: 'Text Me One', sans-serif;
+}
+
+.central{
+  background: #CC3333;
+  color: white;
+}
+
+.display_boards{
+  /* font-family: 'Montserrat', sans-serif; */
+  /* font-family: 'Gruppo', cursive; */
+  /* font-family: 'Julius Sans One', sans-serif; */
+  font-family: 'Codystar', cursive;
+  font-size: 25px;
+}
+
+.status{
+  background: green;
+}

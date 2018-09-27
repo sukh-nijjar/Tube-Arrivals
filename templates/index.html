@@ -1,0 +1,21 @@
+{%extends "master_layout.html"%}
+{% block js_script %}
+  <script type="text/javascript">
+    var stations = {{stations|tojson}};
+    // console.log(stations);
+    $( function() {
+      $( "#station" ).autocomplete({source: stations});
+    });
+  </script>
+{% endblock %}
+{%block content%}
+  <form action="/arrivals">
+    <div class="form-group col-sm-6">
+      <label for="station">Enter station name...</label>
+      <input type="text" class="form-control" id="station" name="station_name">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="submit" class="btn btn-primary btn-lg" value="Get Trains">
+    </div>
+  </form>
+{%endblock%}
