@@ -1,5 +1,7 @@
 import urllib.request as req
 import json
+from datetime import datetime
+from operator import itemgetter
 
 lines = ["bakerloo","central","circle","district","hammersmith-city","jubilee",
          "metropolitan","northern","piccadilly","victoria","waterloo-city",
@@ -71,35 +73,99 @@ def create_station_data():
         # destination_file.write(json.dumps(stations))
         json.dump(stations,destination_file)
 
+# def get_arrivals_for_station(line_id,station_id):
+#     arrivals = list()
+#     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Arrivals/" + station_id
+#     conn = req.urlopen(url)
+#     data = conn.read()
+#     str_data = data.decode("utf8")
+#     json_data = json.loads(str_data) #json_data is a LIST of dicts
+#     display_time = json_data[0]["timing"]["sent"][11:16]
+#
+#     #get next 5 arrivals else results can be too big - introduce pagination next iteration
+#     #however looks like the data in not time ordered so I need to sort it
+#     for entity in json_data:#[:5]:
+#         arrivals.append({"line" : entity['lineName'],
+#                         "station" : entity['stationName'],
+#                         "platform" : entity['platformName'],
+#                         "towards" : entity["towards"],
+#                         "arriving_in" : entity["timeToStation"] // 60,
+#                         "time_expected" : entity['expectedArrival'][11:16],
+#                         "currently_at" : entity['currentLocation'],
+#                         "current_time" : display_time})
+#     return arrivals
+#----------------------------------------------------------------------------
 def get_arrivals_for_station(line_id,station_id):
-    arrivals = list()
+    header_info = {}
+    platforms = list()
+
     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Arrivals/" + station_id
     conn = req.urlopen(url)
     data = conn.read()
     str_data = data.decode("utf8")
-    json_data = json.loads(str_data) #json_data is a LIST of dicts
+    train_arrivals = json.loads(str_data)
+    sorted_train_arrivals = sorted(train_arrivals, key=itemgetter("timeToStation"))
+    print("LENGHT OF ARRIVALS RESPONSE IS {}".format(train_arrivals))
+    display_time = train_arrivals[0]["timing"]["sent"][11:16]
+    header_line = train_arrivals[0]["lineName"]
+    header_station = train_arrivals[0]["stationName"]
 
-    for entity in json_data:
-        arrivals.append({"line" : entity['lineName'],
-                         "station" : entity['stationName'],
-                         "platform" : entity['platformName'],
-                         "towards" : entity["towards"],
-                         "arriving_in" : entity["timeToStation"],
-                         "time_expected" : entity['expectedArrival'],
-                         "currently_at" : entity['currentLocation']})
-    return arrivals
+    for train in train_arrivals:
+        platforms.append(train['platformName'])
 
+    platform_set = set(platforms)
+    available_platforms =  {platform:[] for platform in platform_set}
+
+    #get next 5 arrivals else results can be too big - introduce pagination next iteration
+    #however looks like the data in not time ordered so I need to sort it
+    """
+    for each platform at the station check (for each approaching train)
+    which platform the train will arrive/depart from.
+    if the departure platform matches the platform being checked against
+    then add the train to the group of arrivals for the platform
+    """
+    for platform in available_platforms:
+        for train in sorted_train_arrivals[:10]:
+            if train['platformName'] == platform:
+                available_platforms[platform].append({"line" : train['lineName'],
+                                                    "station" : train['stationName'],
+                                                    "platform" : train['platformName'],
+                                                    "towards" : train["towards"],
+                                                    "arriving_in" : train["timeToStation"] // 60,
+                                                    "time_expected" : train['expectedArrival'][11:16],
+                                                    "currently_at" : train['currentLocation'],
+                                                    "current_time" : display_time})
+    header_info["line"] = header_line
+    header_info["station"] = header_station
+    with open("q.txt", "w+") as out_file:
+        out_file.write(json.dumps(available_platforms, indent=4))
+
+    return available_platforms, header_info
+#-----------------------------------------------------------------------------------
 def get_line_status(line_id):
     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Status?detail=true"
     conn = req.urlopen(url)
     data = conn.read()
     str_data = data.decode("utf8")
     json_data = json.loads(str_data) #json_data is a LIST with a dict...which contains a list LOL!!
-    return json_data[0]["lineStatuses"][0]["statusSeverityDescription"]
-    # for entity in json_data:
-    #     print("entity keys are {}".format(entity.items()))
-    #     print("lineStatuses is TYPE {}".format(type(entity["lineStatuses"])))
-    #     line_state = entity["lineStatuses"][0]["statusSeverityDescription"]
+    # line_name = json_data[0]["name"]
+    line_status = json_data[0]["lineStatuses"][0]["statusSeverityDescription"]
+    # current_line_status = {"line_name" : line_name, "line_status" : line_status}
+    current_line_status = {"line_status" : line_status}
+    return current_line_status
+
+def get_distruption_info(line_id):
+    url = "https://api.tfl.gov.uk/Line/" + line_id + "/Disruption"
+    conn = req.urlopen(url)
+    data = conn.read()
+    str_data = data.decode("utf8")
+    json_data = json.loads(str_data)
+    #it maybe there are no distruptions but the api is unable to return arrivals data
+    if json_data:
+        return json_data[0]["description"]
+    else:
+        return """For some reason live arrivals for this station are not available at the moment.
+                  Please consult timetables on Transport for London's website."""
 
 def main():
     create_station_data()
