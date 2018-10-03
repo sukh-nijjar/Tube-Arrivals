@@ -32,3 +32,8 @@ h1{
 .status{
   background: green;
 }
+
+.station_error{
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}

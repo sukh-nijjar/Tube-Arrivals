@@ -105,10 +105,13 @@ def get_arrivals_for_station(line_id,station_id):
     str_data = data.decode("utf8")
     train_arrivals = json.loads(str_data)
     sorted_train_arrivals = sorted(train_arrivals, key=itemgetter("timeToStation"))
-    print("LENGHT OF ARRIVALS RESPONSE IS {}".format(train_arrivals))
-    display_time = train_arrivals[0]["timing"]["sent"][11:16]
-    header_line = train_arrivals[0]["lineName"]
-    header_station = train_arrivals[0]["stationName"]
+    if len(train_arrivals):
+        display_time = train_arrivals[0]["timing"]["sent"][11:16]
+        header_line = train_arrivals[0]["lineName"]
+        header_station = train_arrivals[0]["stationName"]
+    else:
+        #Becontree solved LOL!!!
+        return {},{}
 
     for train in train_arrivals:
         platforms.append(train['platformName'])

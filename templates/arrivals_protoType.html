@@ -2,7 +2,7 @@
 {%block content%}
   {% if msg %}
     <div class="row text-center">
-      <h1 class="central col-sm-6">{{station_info["station"]}}</h1>
+      <h1 class="central col-sm-6">{{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
     <div class="display_boards row">
@@ -48,5 +48,5 @@
       </div>
     {% endfor %}
   {% endif %}
-  <a href="/">Perform another search</a>
+  <a href="/" class="btn btn-outline-primary" role="button">Perform another search</a></div>
 {%endblock%}

@@ -2,10 +2,32 @@
 {% block js_script %}
   <script type="text/javascript">
     var stations = {{stations|tojson}};
-    // console.log(stations);
+
     $( function() {
       $( "#station" ).autocomplete({source: stations});
     });
+
+    // load event listener ensures form is available for access
+    window.addEventListener("load", function(){
+      $("#get_trains").on("click", function(event){
+        event.preventDefault();
+        var station_name = $("#station").val();
+        if (station_name.trim().length > 0 && stations.includes(station_name)) {
+          $("form").submit();
+        }
+        else{
+          var message = "Please provide a valid station";
+          $("#station").val(message).addClass("station_error");
+        }
+      });
+
+      $("#station").bind("focus", function(){
+        $(this).val("").removeClass("station_error");
+      });
+    });
+
+
+
   </script>
 {% endblock %}
 {%block content%}
@@ -15,7 +37,7 @@
       <input type="text" class="form-control" id="station" name="station_name">
     </div>
     <div class="form-group col-sm-6">
-      <input type="submit" class="btn btn-primary btn-lg" value="Get Trains">
+      <button type="submit" class="btn btn-primary btn-lg" id="get_trains">Get Trains</button>
     </div>
   </form>
 {%endblock%}
