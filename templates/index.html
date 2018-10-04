@@ -12,6 +12,7 @@
       $("#get_trains").on("click", function(event){
         event.preventDefault();
         var station_name = $("#station").val();
+        // has a value been supplied AND is it an actual known station
         if (station_name.trim().length > 0 && stations.includes(station_name)) {
           $("form").submit();
         }
@@ -25,9 +26,6 @@
         $(this).val("").removeClass("station_error");
       });
     });
-
-
-
   </script>
 {% endblock %}
 {%block content%}
