@@ -3,9 +3,16 @@ import json
 from datetime import datetime
 from operator import itemgetter
 
+# lines list is used to generate station names
 lines = ["bakerloo","central","circle","district","hammersmith-city","jubilee",
          "metropolitan","northern","piccadilly","victoria","waterloo-city",
          "tfl-rail","london-overground"]
+
+# brand_colours dict is used to pass correct line branding to views
+brand_colours = {"bakerloo" : "#B36305", "central" : "#E32017", "circle" : "#FFD300",
+                 "district" : "#00782A", "hammersmith-city" : "#F3A9BB", "metropolitan" : "#9B0056",
+                 "northern" : "#000000", "piccadilly" : "#003688", "victoria" : "#0098D4",
+                 "waterloo-city" : "#95CDBA", "jubilee" : "#A0A5A9"}
 
 stations = list()
 
@@ -53,9 +60,6 @@ def get_stops_for_line(line):
                     station_data["line_id"] = line
                     line_stations.append(station_data)
 
-        # line_stations.append(entity["commonName"])
-        # line_stations.append([entity["commonName"],entity["naptanId"]])
-
     stations.extend(line_stations)
 
 def create_station_data():
@@ -73,31 +77,10 @@ def create_station_data():
         # destination_file.write(json.dumps(stations))
         json.dump(stations,destination_file)
 
-# def get_arrivals_for_station(line_id,station_id):
-#     arrivals = list()
-#     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Arrivals/" + station_id
-#     conn = req.urlopen(url)
-#     data = conn.read()
-#     str_data = data.decode("utf8")
-#     json_data = json.loads(str_data) #json_data is a LIST of dicts
-#     display_time = json_data[0]["timing"]["sent"][11:16]
-#
-#     #get next 5 arrivals else results can be too big - introduce pagination next iteration
-#     #however looks like the data in not time ordered so I need to sort it
-#     for entity in json_data:#[:5]:
-#         arrivals.append({"line" : entity['lineName'],
-#                         "station" : entity['stationName'],
-#                         "platform" : entity['platformName'],
-#                         "towards" : entity["towards"],
-#                         "arriving_in" : entity["timeToStation"] // 60,
-#                         "time_expected" : entity['expectedArrival'][11:16],
-#                         "currently_at" : entity['currentLocation'],
-#                         "current_time" : display_time})
-#     return arrivals
-#----------------------------------------------------------------------------
 def get_arrivals_for_station(line_id,station_id):
     header_info = {}
     platforms = list()
+    colour = brand_colours[line_id]
 
     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Arrivals/" + station_id
     conn = req.urlopen(url)
@@ -111,7 +94,7 @@ def get_arrivals_for_station(line_id,station_id):
         header_station = train_arrivals[0]["stationName"]
     else:
         #Becontree solved LOL!!!
-        return {},{}
+        return {},{"line_colour" : colour}
 
     for train in train_arrivals:
         platforms.append(train['platformName'])
@@ -140,6 +123,7 @@ def get_arrivals_for_station(line_id,station_id):
                                                     "current_time" : display_time})
     header_info["line"] = header_line
     header_info["station"] = header_station
+    header_info["line_colour"] = colour
     with open("q.txt", "w+") as out_file:
         out_file.write(json.dumps(available_platforms, indent=4))
 
@@ -151,10 +135,9 @@ def get_line_status(line_id):
     data = conn.read()
     str_data = data.decode("utf8")
     json_data = json.loads(str_data) #json_data is a LIST with a dict...which contains a list LOL!!
-    # line_name = json_data[0]["name"]
     line_status = json_data[0]["lineStatuses"][0]["statusSeverityDescription"]
-    # current_line_status = {"line_name" : line_name, "line_status" : line_status}
-    current_line_status = {"line_status" : line_status}
+    severity_code = json_data[0]["lineStatuses"][0]["statusSeverity"]
+    current_line_status = {"line_status" : line_status, "severity_code" : severity_code}
     return current_line_status
 
 def get_distruption_info(line_id):
@@ -163,9 +146,10 @@ def get_distruption_info(line_id):
     data = conn.read()
     str_data = data.decode("utf8")
     json_data = json.loads(str_data)
-    #it maybe there are no distruptions but the api is unable to return arrivals data
+
     if json_data:
         return json_data[0]["description"]
+    #it maybe there are no distruptions but the api is unable to return arrivals data
     else:
         return """For some reason live arrivals for this station are not available at the moment.
                   Please consult timetables on Transport for London's website."""
@@ -173,10 +157,9 @@ def get_distruption_info(line_id):
 def main():
     create_station_data()
     print(stations)
-    # for s in stations:
-    #     print(s)
 
 #can now import this into main.py to use functions but this file will
 #not execute as it will not be __main__ unless executing stand-alone
 if __name__ == "__main__":
+    print("RUNNING")
     main()

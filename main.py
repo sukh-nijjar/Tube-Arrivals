@@ -15,7 +15,7 @@ def station_arrivals():
     station = request.args.get("station_name")
     tube_stops = station_data()
 
-    #find the station for which trains arrivals are to be displayed
+    #find the station id (required by API) for which trains arrivals are to be displayed
     for stop in tube_stops:
         if stop["station_name"] == station:
             station_id = stop["station_id"]
@@ -37,7 +37,9 @@ def station_arrivals():
     else:
         #no arrivals have been returned for that station so check for distruptions
         distruption_info = get_distruption_info(line_id)
-        header_info = {"line" : line_id, "station" : station}
+        # header_info = {"line" : line_id, "station" : station}
+        header_info["line"] = line_id
+        header_info["station"] = station
         msg = "NO ARRIVALS FOR THIS STATION"
         print("HEADERS {}".format(header_info))
         return render_template("arrivals_protoType.html", line_status = line_status,

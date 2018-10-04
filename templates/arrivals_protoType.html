@@ -1,8 +1,56 @@
 {%extends "master_layout.html"%}
+{% block js_script %}
+  <script type="text/javascript">
+    var line_col = {{headers["line_colour"]|tojson}};
+    var status_code = {{line_status["severity_code"]}};
+
+    function status_colour(code){
+      switch (code) {
+        case 10:
+        case 18:
+          return "green";
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 6:
+        case 16:
+        case 20:
+          return "red"
+          break;
+        case 9:
+          return "gold"
+          break;
+        case 0:
+        case 4:
+        case 5:
+        case 7:
+        case 8:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 17:
+        case 19:
+          return "MediumPurple"
+          break;
+      }
+    }
+
+    window.addEventListener("load", function() {
+      $(".station_line, body").css("background-color",line_col);
+
+      status_col = status_colour(status_code);
+      $(".status").css("background-color",status_col);
+    });
+
+  </script>
+{% endblock %}
 {%block content%}
   {% if msg %}
     <div class="row text-center">
-      <h1 class="central col-sm-6">{{headers["station"]}}</h1>
+      <h1 class="station_line col-sm-6">{{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
     <div class="display_boards row">
@@ -22,7 +70,7 @@
     </div>
   {% else %}
     <div class="row text-center">
-      <h1 class="central col-sm-6">{{headers["line"]}} Line : {{headers["station"]}}</h1>
+      <h1 class="station_line col-sm-6">{{headers["line"]}} Line : {{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
     {% for arr,arrival in arrivals.items() %}
