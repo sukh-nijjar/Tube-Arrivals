@@ -23,26 +23,17 @@ def station_arrivals():
 
     line_status = get_line_status(line_id)
     arrivals_info, header_info = get_arrivals_for_station(line_id,station_id)
-    #START DISCOVERY
-    # print("Length is {}".format(len(arrivals_info)))
-    # for k,arrival in arrivals_info.items():
-    #     for a in arrival:
-    #         print(a["towards"])
-    #END DISCOVERY
 
     if len(arrivals_info):
-        # return render_template("arrivals.html", line_status = line_status, arrivals = arrivals_info)
-        return render_template("arrivals_protoType.html", line_status = line_status,
+        return render_template("arrivals.html", line_status = line_status,
                                arrivals = arrivals_info, headers = header_info)
     else:
         #no arrivals have been returned for that station so check for distruptions
         distruption_info = get_distruption_info(line_id)
-        # header_info = {"line" : line_id, "station" : station}
         header_info["line"] = line_id
         header_info["station"] = station
         msg = "NO ARRIVALS FOR THIS STATION"
-        print("HEADERS {}".format(header_info))
-        return render_template("arrivals_protoType.html", line_status = line_status,
+        return render_template("arrivals.html", line_status = line_status,
                                 headers = header_info, msg = msg, distruption_info=distruption_info)
 
 def get_stations():

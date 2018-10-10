@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Codystar|Gruppo|Julius+Sans+One|Montserrat|Text+Me+One');
+@import url('https://fonts.googleapis.com/css?family=Codystar|Julius+Sans+One');
 
 table {
   font-size: 1rem;
@@ -16,15 +16,12 @@ body{
 }
 
 h1{
-  font-family: 'Text Me One', sans-serif;
+  /* font-family: 'Text Me One', sans-serif; */
+  font-family: 'Julius Sans One', sans-serif;
 }
 
 .display_boards{
-  /* font-family: 'Montserrat', sans-serif; */
-  /* font-family: 'Gruppo', cursive; */
-  /* font-family: 'Julius Sans One', sans-serif; */
   font-family: 'Codystar', cursive;
-  /* font-size: 25px; */
 }
 
 .station_error{
@@ -32,15 +29,25 @@ h1{
   color: #dc3545;
 }
 
-
 /*
 breakpoints
 */
 
+@media (min-width: 350px) {
+  table {
+    font-size: 0.9rem;
+  }
+  h1{
+    font-size: 1.2rem;
+  }
+}
 
 @media (min-width: 768px) {
   table {
     font-size: 1.1875rem;
+  }
+  h1{
+    font-size: 1.5rem;
   }
 }
 
@@ -48,10 +55,16 @@ breakpoints
   table {
     font-size: 1.375rem;
   }
+  h1{
+    font-size: 2.0rem;
+  }
 }
 
 @media (min-width: 1200px) {
   table {
     font-size: 1.5625rem;
+  }
+  h1{
+    font-size: 2.5rem;
   }
 }

@@ -14,20 +14,20 @@ brand_colours = {"bakerloo" : "#B36305", "central" : "#E32017", "circle" : "#FFD
                  "northern" : "#000000", "piccadilly" : "#003688", "victoria" : "#0098D4",
                  "waterloo-city" : "#95CDBA", "jubilee" : "#A0A5A9"}
 
+# list to hold all the station names that will present on index view
 stations = list()
 
 def expand_station_name(station,lines):
     expanded_names = list()
     for line in lines:
-        expanded_name = station.replace("Underground Station","") #+ "- " + line.capitalize() + " Line"
-        # if stations.count()
+        expanded_name = station.replace("Underground Station","")
         expanded_names.append(expanded_name)
     return expanded_names
 
 def get_stops_for_line(line):
-    """create the list of stations that is presented in the index.html viewself.
+    """create the list of stations that is presented in the index.html view.
         The TFL API includes the phrase 'Underground Station' appended to
-        all station names. For the station selection input list this is stripped out"""
+        all station names. For the station selection input list this phrase is stripped out"""
     line_stations = list()
 
     #set the url for API call
@@ -46,7 +46,6 @@ def get_stops_for_line(line):
                 #check if the station (aka entity) is served by more than one tube line
                 if line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) > 1:
                     expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
-                    # print("returned list = {}".format(expanded_station_names))
                     for expanded_station_name in expanded_station_names:
                         station_data = {}
                         station_data["station_name"] = expanded_station_name + "- " + line.capitalize() + " Line"
@@ -74,7 +73,6 @@ def create_station_data():
         get_stops_for_line(line)
 
     with open(file, "w") as destination_file:
-        # destination_file.write(json.dumps(stations))
         json.dump(stations,destination_file)
 
 def get_arrivals_for_station(line_id,station_id):
@@ -91,9 +89,9 @@ def get_arrivals_for_station(line_id,station_id):
     if len(train_arrivals):
         display_time = train_arrivals[0]["timing"]["sent"][11:16]
         header_line = train_arrivals[0]["lineName"]
-        header_station = train_arrivals[0]["stationName"]
+        header_station = train_arrivals[0]["stationName"].replace("Underground Station","")
     else:
-        #Becontree solved LOL!!!
+        #where API does not return any arrivals for the station return an empty result
         return {},{"line_colour" : colour}
 
     for train in train_arrivals:
@@ -102,8 +100,6 @@ def get_arrivals_for_station(line_id,station_id):
     platform_set = set(platforms)
     available_platforms =  {platform:[] for platform in platform_set}
 
-    #get next 5 arrivals else results can be too big - introduce pagination next iteration
-    #however looks like the data in not time ordered so I need to sort it
     """
     for each platform at the station check (for each approaching train)
     which platform the train will arrive/depart from.
@@ -111,7 +107,7 @@ def get_arrivals_for_station(line_id,station_id):
     then add the train to the group of arrivals for the platform
     """
     for platform in available_platforms:
-        for train in sorted_train_arrivals[:10]:
+        for train in sorted_train_arrivals[:11]:
             if train['platformName'] == platform:
                 available_platforms[platform].append({"line" : train['lineName'],
                                                     "station" : train['stationName'],
@@ -120,21 +116,21 @@ def get_arrivals_for_station(line_id,station_id):
                                                     "arriving_in" : train["timeToStation"] // 60,
                                                     "time_expected" : train['expectedArrival'][11:16],
                                                     "currently_at" : train['currentLocation'],
+                                                    "arriving_in_secs" : train["timeToStation"],
                                                     "current_time" : display_time})
+
     header_info["line"] = header_line
     header_info["station"] = header_station
     header_info["line_colour"] = colour
-    with open("q.txt", "w+") as out_file:
-        out_file.write(json.dumps(available_platforms, indent=4))
 
     return available_platforms, header_info
-#-----------------------------------------------------------------------------------
+
 def get_line_status(line_id):
     url = "https://api.tfl.gov.uk/Line/" + line_id + "/Status?detail=true"
     conn = req.urlopen(url)
     data = conn.read()
     str_data = data.decode("utf8")
-    json_data = json.loads(str_data) #json_data is a LIST with a dict...which contains a list LOL!!
+    json_data = json.loads(str_data)
     line_status = json_data[0]["lineStatuses"][0]["statusSeverityDescription"]
     severity_code = json_data[0]["lineStatuses"][0]["statusSeverity"]
     current_line_status = {"line_status" : line_status, "severity_code" : severity_code}
@@ -149,7 +145,7 @@ def get_distruption_info(line_id):
 
     if json_data:
         return json_data[0]["description"]
-    #it maybe there are no distruptions but the api is unable to return arrivals data
+    #it maybe there are no distruptions but the API is unable to return arrivals data
     else:
         return """For some reason live arrivals for this station are not available at the moment.
                   Please consult timetables on Transport for London's website."""
