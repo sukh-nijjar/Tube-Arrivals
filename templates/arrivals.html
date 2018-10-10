@@ -1,8 +1,68 @@
 {%extends "master_layout.html"%}
+{% block js_script %}
+  <script type="text/javascript">
+    var line_name = {{headers["line"]|tojson}}
+    var line_col = {{headers["line_colour"]|tojson}};
+    var station = {{headers["station"]|tojson}};
+    var status_code = {{line_status["severity_code"]}};
+
+    function status_colour(code){
+      switch (code) {
+        case 10:
+        case 18:
+          return "green";
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 6:
+        case 16:
+        case 20:
+          return "red"
+          break;
+        case 9:
+          return "gold"
+          break;
+        case 0:
+        case 4:
+        case 5:
+        case 7:
+        case 8:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 17:
+        case 19:
+          return "MediumPurple"
+          break;
+      }
+    }
+
+    function arrival_updates() {
+      location.reload(true);
+    }
+
+    window.addEventListener("load", function() {
+      $(".station_line, body").css("background-color",line_col);
+
+      status_col = status_colour(status_code);
+      $(".status").css("background-color",status_col);
+
+      console.log("line is " + line_name);
+      if (line_name === "Northern" || line_name === "Piccadilly") {
+        $(".station_line").css("color", "#ffffff");
+      }
+
+      setInterval(arrival_updates, 60000);
+    });
+  </script>
+{% endblock %}
 {%block content%}
   {% if msg %}
     <div class="row text-center">
-      <h1 class="central col-sm-6">{{station_info["station"]}}</h1>
+      <h1 class="station_line col-sm-6">{{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
     <div class="display_boards row">
@@ -22,30 +82,44 @@
     </div>
   {% else %}
     <div class="row text-center">
-      <h1 class="central col-sm-6">{{arrivals[0]["station"] + " - " + arrivals[0]["line"] + " Line"}}</h1>
+      <h1 class="station_line col-sm-6">{{headers["line"]}} Line : {{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
-    <div class="display_boards row">
-      <div class="col-sm-2"></div>
-      <div class="table-responsive col-sm-8">
-        <table class="table table-bordered table-dark text-warning ">
-          <tr class="text-center">
-            <th colspan="6">{{arrivals[0]["platform"]}} CURRENT TIME {{arrivals[0]["current_time"]}}</th>
-          </tr>
-        {% for arrival in arrivals %}
-          <tr>
-            <td class="text-center">{{loop.index}}</td>
-            <td>{{arrival["towards"]}}</td>
-            <td class="text-center">{{arrival["arriving_in"]}} mins</td>
-            <td class="text-center">{{arrival["time_expected"]}}</td>
-            <td>{{arrival["currently_at"]}}</td>
-          </tr>
-        {% endfor %}
-        </table>
+    {% for arr,arrival in arrivals.items() %}
+      <div class="display_boards row">
+        <div class="col-sm-2"></div>
+        <div class="table-responsive col-sm-8">
+          <table class="table table-bordered table-dark text-warning" id="arrivals_list">
+            <tr class="text-center">
+                <th colspan="6">{{arr}}</th>
+            </tr>
+            <tr class="font-weight-bold text-info">
+              <td></td>
+              <td>Destination</td>
+              <td>Due in</td>
+              <td>Expected</td>
+              <td>Current location</td>
+            </tr>
+            {% for arr in arrival %}
+              <tr>
+                <td class="text-center">{{loop.index}}</td>
+                <td>{{arr["towards"]}}</td>
+                <td class="text-center">{{arr["arriving_in"]}} mins</td>
+                <td class="text-center">{{arr["time_expected"]}}</td>
+                <td>{{arr["currently_at"]}}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="col-sm-2"></div>
       </div>
-      <div class="col-sm-2"></div>
-    </div>
+    {% endfor %}
   {% endif %}
-  <a href="/" class="btn btn-outline-primary" role="button">Perform another search</a>
-  <button type="button" class="btn btn-outline-primary">Primary</button>
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+      <a href="/" class="btn btn-outline-primary" role="button">Perform another search</a>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
 {%endblock%}
