@@ -55,7 +55,7 @@
         $(".station_line").css("color", "#ffffff");
       }
 
-      setInterval(arrival_updates, 60000);
+      // setInterval(arrival_updates, 60000);
     });
   </script>
 {% endblock %}
@@ -81,7 +81,7 @@
       <div class="col-sm-2"></div>
     </div>
   {% else %}
-    <div class="row text-center">
+    <div class="row text-center font-weight-bold">
       <h1 class="station_line col-sm-6">{{headers["line"]}} Line : {{headers["station"]}}</h1>
       <h1 class="status col-sm-6">LINE STATUS - {{line_status["line_status"]}}</h1>
     </div>
@@ -89,11 +89,11 @@
       <div class="display_boards row">
         <div class="col-sm-2"></div>
         <div class="table-responsive col-sm-8">
-          <table class="table table-bordered table-dark text-warning" id="arrivals_list">
+          <table class="table table-bordered table-dark text-warning font-weight-bold" id="arrivals_list">
             <tr class="text-center">
                 <th colspan="6">{{arr}}</th>
             </tr>
-            <tr class="font-weight-bold text-info">
+            <tr class="text-info">
               <td></td>
               <td>Destination</td>
               <td>Due in</td>
