@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Codystar|Julius+Sans+One');
 
-table {
+/* table {
   font-size: 1rem;
-}
+} */
 
 body{
     background-image: url("../images/tube_escalator_mono.jpg");
@@ -18,6 +18,10 @@ body{
 h1{
   /* font-family: 'Text Me One', sans-serif; */
   font-family: 'Julius Sans One', sans-serif;
+}
+
+.arrivals_list{
+  background-color: #000000;
 }
 
 .display_boards{
