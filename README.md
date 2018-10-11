@@ -1,4 +1,5 @@
-# Tube-Arrivals
+# Tube-Arrivals  
+![](read_me_images/TubeArrivals.png)
 Tube Arrivals is a responsive minimalist application that does one concise thing : displays train arrivals for tube stations on the famous London Underground.
 
 ## Pre-requisites
