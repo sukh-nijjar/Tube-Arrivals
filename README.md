@@ -18,5 +18,9 @@ Python web application using:
 * Transport for London Unified API
 * Google Fonts
 
-# Design Choices
-Given there are only 2 views each with specific client-side needs javascript has been directly included in the 2 html pages.
+# Requirements
+
+## User Story
+**As a** passenger
+**I want** to know when the next trains are arriving at my local station
+**So that** I can work out when I need to leave my location in order to get the train I need and become aware of any issues
