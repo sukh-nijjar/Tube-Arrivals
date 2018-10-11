@@ -77,7 +77,7 @@ A  message is displayed informing no arrivals information is available and line 
 * Distruption information for a specific line  
   * Line/line_id/Disruption  
   * (e.g. service can be distrupted for various reasons (engineering works etc) : https://api.tfl.gov.uk/Line/circle/Disruption  
-### Static  
+### Static data   
 _The list of stations made available on the station search view must be generated once and stored locally to act as the source data for the search input field. Calling the API each time the page loads for list of valid stations is time consuming and wasteful._  
 
 * Stations on a specific line  
