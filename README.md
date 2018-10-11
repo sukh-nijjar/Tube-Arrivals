@@ -52,3 +52,16 @@ There is no arrivals information available for a station
 Arrivals information is retrieved  
 **THEN**  
 A  message is displayed informing no arrivals information is available and line status is displayed  
+
+# Design  
+## User Interface  
+### Responsive  
+* The application must render properly across various device types  
+### Look and Feel
+* The site will have a background image which invokes familar feeling for tube users  
+* The arrivals presentation will be inspired by the digital display boards found at tube stations  
+* Font to replicate dot matrix display is Codystar  
+* Font to display the station name and line status is the elegant Julius Sans One  
+* lines will be represented by their familar TfL  colours (e.g. the central line is red, circle line is yellow)  
+* line status will be represented by the familar Red-Amber-Green scheme  (Red = severe  delays, Amber = minor  delays, Green = good service)  
+
