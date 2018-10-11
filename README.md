@@ -1,5 +1,5 @@
 # Tube-Arrivals
-Tube Arrivals is a responsive minimalist application that does one concise thing : displays train arrivals for a tube station on the famous London Underground.
+Tube Arrivals is a responsive minimalist application that does one concise thing : displays train arrivals for tube stations on the famous London Underground.
 
 ## Pre-requisites
 * An installation of Python
@@ -31,7 +31,7 @@ A passenger wants to know train arrivals for a local station
 **WHEN**  
 They search for arrival information  
 **THEN**  
-They must specify the station name they are interested  
+They must specify the station name they are interested in  
 
 **GIVEN**  
 A station is submitted for viewing it's arrivals information  
@@ -58,10 +58,46 @@ A  message is displayed informing no arrivals information is available and line 
 ### Responsive  
 * The application must render properly across various device types  
 ### Look and Feel
-* The site will have a background image which invokes familar feeling for tube users  
-* The arrivals presentation will be inspired by the digital display boards found at tube stations  
-* Font to replicate dot matrix display is Codystar  
+* The site will have a background image which invokes a feeling of familiarity for tube users  
+* The arrivals presentation is inspired by the digital display boards found Lt tube stations  
+* Font to replicate dot matrix display is Codystar 
 * Font to display the station name and line status is the elegant Julius Sans One  
-* lines will be represented by their familar TfL  colours (e.g. the central line is red, circle line is yellow)  
-* line status will be represented by the familar Red-Amber-Green scheme  (Red = severe  delays, Amber = minor  delays, Green = good service)  
+* Lines will be represented by their familar TfL  colours (e.g. the central line is red, circle line is yellow)  
+* Line status will be represented by the familar Red-Amber-Green scheme  (Red = severe  delays, Amber = minor  delays, Green = good service)  
 
+## DATA - Sourced from the TfL Unified API
+### Real Time Live  
+* Arrivals for a specific station on a specific line  
+  * Line/line_id/Arrivals/station_id  
+  * (e.g. arrivals at Liverpool Street on the Circle line) : https://api.tfl.gov.uk/Line/circle/Arrivals/940GZZLULVT  
+  * The arrivals view needs to refresh every 60 seconds  
+* Status of a specific line  
+  * Line/line_id/Status?detail=true  
+  * (e.g. current status (good service, minor delays etc) of the circle line) : https://api.tfl.gov.uk/Line/circle/Status?detail=true  
+* Distruption information for a specific line  
+  * Line/line_id/Disruption  
+  * (e.g. service can be distrupted for various reasons (engineering works etc) : https://api.tfl.gov.uk/Line/circle/Disruption  
+### Static  
+_The list of stations made available on the station search view must be generated once and stored locally to act as the source data for the search input field. Calling the API each time the page loads for list of valid stations is time consuming and wasteful._  
+
+* Stations on a specific line  
+  * Line/line_id/StopPoints  
+  * (e.g. get the list of stations on the circle line) : https://api.tfl.gov.uk/Line/circle/StopPoints
+  * This webservice is invoked once for each line to build up the total list of stations on the tube network. The station list is generated as a one-off activity and once generated is stored as a local json file. 
+  
+## Code
+In keeping with the minimalist approach for UI and features I extended the same thought towards number of project files and intentionally wrapped javascript into the html files.  
+
+# API Analysis 
+The API responses are verbose and required careful analysis to extract the specific elements relevant to the requirements.  
+Some things learnt:  
+- The API does not return arrivals data in time order - the application has responsibility to sort the data according to time
+requirements
+- The list of arrivals can be very long - the application has responsibility for displaying the next 10 arrivals only
+- Arrivals data is not split by platform - the application has responsibility for splitting arrivals  information by platform
+- The API does not always return arrivals data for a station even if there is a good service, for example Becontree never
+seems to have live arrivals information! There needs to be a check for empty responses to deal with it elegantly and not with a
+crash!
+
+# Wireframes
+See file "Tube_Arrivals_Specification.pdf"
