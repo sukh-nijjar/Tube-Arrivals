@@ -21,6 +21,34 @@ Python web application using:
 # Requirements
 
 ## User Story
-**As a** passenger
-**I want** to know when the next trains are arriving at my local station
+**As a** passenger  
+**I want** to know when the next trains are arriving at my local station  
 **So that** I can work out when I need to leave my location in order to get the train I need and become aware of any issues
+
+## Acceptance Criteria
+**GIVEN**  
+A passenger wants to know train arrivals for a local station  
+**WHEN**  
+They search for arrival information  
+**THEN**  
+They must specify the station name they are interested  
+
+**GIVEN**  
+A station is submitted for viewing it's arrivals information  
+**WHEN**  
+Arrivals information is retrieved  
+**THEN**  
+The following information is displayed:
+- Platform number
+- Train sequence (e.g. 1,2,3)
+- Destination station
+- When due (in minutes)
+- Expected arrival time
+- Current location of train
+
+**GIVEN**  
+There is no arrivals information available for a station  
+**WHEN**  
+Arrivals information is retrieved  
+**THEN**  
+A  message is displayed informing no arrivals information is available and line status is displayed  
