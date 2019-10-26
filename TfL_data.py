@@ -1,7 +1,8 @@
 import urllib.request as req
 import json
-from datetime import datetime
+import arrow
 from operator import itemgetter
+from math import floor
 
 # lines list is used to generate station names
 lines = ["bakerloo","central","circle","district","hammersmith-city","jubilee",
@@ -28,6 +29,8 @@ def get_stops_for_line(line):
     """create the list of stations that is presented in the index.html view.
         The TFL API includes the phrase 'Underground Station' appended to
         all station names. For the station selection input list this phrase is stripped out"""
+
+    print("Getting stops for {}".format(line))
     line_stations = list()
 
     #set the url for API call
@@ -43,7 +46,7 @@ def get_stops_for_line(line):
     for entity in json_data:
         if "tube" in entity["modes"]:
             for line_mode in entity["lineModeGroups"]:
-                #check if the station (aka entity) is served by more than one tube line
+                #check if the station (aka entity) is served by more than one tube line. If so tack on the line to the station name
                 if line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) > 1:
                     expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
                     for expanded_station_name in expanded_station_names:
@@ -87,7 +90,7 @@ def get_arrivals_for_station(line_id,station_id):
     train_arrivals = json.loads(str_data)
     sorted_train_arrivals = sorted(train_arrivals, key=itemgetter("timeToStation"))
     if len(train_arrivals):
-        display_time = train_arrivals[0]["timing"]["sent"][11:16]
+        current_time = arrow.now('Europe/London').format('HH:mm')
         header_line = train_arrivals[0]["lineName"]
         header_station = train_arrivals[0]["stationName"].replace("Underground Station","")
     else:
@@ -102,8 +105,8 @@ def get_arrivals_for_station(line_id,station_id):
 
     """
     for each platform at the station check (for each approaching train)
-    which platform the train will arrive/depart from.
-    if the departure platform matches the platform being checked against
+    which platform the train will arrive at.
+    if the platform matches the platform being checked against
     then add the train to the group of arrivals for the platform
     """
     for platform in available_platforms:
@@ -113,11 +116,11 @@ def get_arrivals_for_station(line_id,station_id):
                                                     "station" : train['stationName'],
                                                     "platform" : train['platformName'],
                                                     "towards" : train["towards"],
-                                                    "arriving_in" : train["timeToStation"] // 60,
-                                                    "time_expected" : train['expectedArrival'][11:16],
+                                                    "arriving_in" : floor(train["timeToStation"] / 60),
+                                                    "time_expected" : arrow.get(train['expectedArrival']).to('Europe/London').format('HH:mm'),
                                                     "currently_at" : train['currentLocation'],
                                                     "arriving_in_secs" : train["timeToStation"],
-                                                    "current_time" : display_time})
+                                                    "current_time" : current_time})
 
     header_info["line"] = header_line
     header_info["station"] = header_station
@@ -152,7 +155,7 @@ def get_distruption_info(line_id):
 
 def main():
     create_station_data()
-    print(stations)
+    # print(stations)
 
 #can now import this into main.py to use functions but this file will
 #not execute as it will not be __main__ unless executing stand-alone
