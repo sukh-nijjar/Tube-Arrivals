@@ -23,6 +23,7 @@ def station_arrivals():
 
     line_status = get_line_status(line_id)
     arrivals_info, header_info = get_arrivals_for_station(line_id,station_id)
+    print("ARRIVALS INFO {}".format(arrivals_info))
 
     if len(arrivals_info):
         return render_template("arrivals.html", line_status = line_status,
