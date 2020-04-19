@@ -51,7 +51,7 @@
       $(".status").css("background-color",status_col);
 
       console.log("line is " + line_name);
-      if (line_name === "Northern" || line_name === "Piccadilly") {
+      if (line_name === "Northern" || line_name === "Piccadilly" || line_name === "TfL Rail") {
         $(".station_line").css("color", "#ffffff");
       }
 
@@ -103,10 +103,18 @@
             {% for arr in arrival %}
               <tr>
                 <td class="text-center">{{loop.index}}</td>
-                <td>{{arr["towards"]}}</td>
+                {% if arr["towards"] %}
+                  <td>{{arr["towards"]}}</td>
+                {% else %}
+                  <td>{{arr["destination_name"]}}</td>
+                {% endif %}
                 <td class="text-center">{{arr["arriving_in"]}} mins</td>
                 <td class="text-center">{{arr["time_expected"]}}</td>
-                <td>{{arr["currently_at"]}}</td>
+                {% if arr["currently_at"] %}
+                  <td>{{arr["currently_at"]}}</td>
+                {% else %}
+                  <td>Not Available</td>
+                {% endif %}
               </tr>
             {% endfor %}
           </table>

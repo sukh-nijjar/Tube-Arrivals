@@ -23,7 +23,32 @@ def station_arrivals():
 
     line_status = get_line_status(line_id)
     arrivals_info, header_info = get_arrivals_for_station(line_id,station_id)
-    print("ARRIVALS INFO {}".format(arrivals_info))
+
+    """
+    some API responses (wrapped up in the dict arrivals_info) contain platforms with no arrivals information
+    which would be pointless to display on the UI so the following code removes those platforms (if there are any).
+    This seems to affect responses where the line is London Overground and specific stations e.g. Hackney Downs
+    so not sure the frequency of this type of response.
+    Additionally passing the arrivals_info dict to the UI template with non-exist arrivals was causing the
+    application to crash as it expects values to process  
+    """
+    keys_to_remove = list()
+    for key,value in arrivals_info.items():
+        if len(value) < 1:
+            keys_to_remove.append(key)
+
+    if keys_to_remove:
+        for ktr in keys_to_remove:
+            arrivals_info.pop(ktr)
+    print("keys_to_remove {}".format(keys_to_remove))
+
+    # file = "arrivals_for_single_station.json"
+    # with open(file, "w") as out_file:
+    #     out_file.write(json.dumps(arrivals_info, indent=4))
+    #     out_file.write("\n")
+    #     for k,v in arrivals_info.items():
+    #         out_file.write(k + str(v) + "\n")
+    #         out_file.write("LEN = " + str(len(v)) + "\n")
 
     if len(arrivals_info):
         return render_template("arrivals.html", line_status = line_status,
@@ -47,8 +72,8 @@ def get_stations():
     return tube_stops_list
 
 def station_data():
-    if os.path.isfile("station_names.json"):
-        with open("station_names.json","r") as stations:
+    if os.path.isfile("station_names_v2.json"):
+        with open("station_names_v2.json","r") as stations:
             return json.load(stations)
 
 if __name__ == "__main__":
