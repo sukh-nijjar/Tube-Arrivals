@@ -4,10 +4,12 @@ import arrow
 from operator import itemgetter
 from math import floor
 
-# lines list is used to generate station names
+# lines list is used to generate station names, each element is a line ID
 lines = ["bakerloo","central","circle","district","hammersmith-city","jubilee",
          "metropolitan","northern","piccadilly","victoria","waterloo-city",
-         "tfl-rail","london-overground"]
+         "tfl-rail","london-overground","DLR"]
+
+# lines = ["london-overground","metropolitan","central","circle"]
 
 # brand_colours dict is used to pass correct line branding to views
 brand_colours = {"bakerloo" : "#B36305", "central" : "#E32017", "circle" : "#FFD300",
@@ -46,21 +48,30 @@ def get_stops_for_line(line):
     for entity in json_data:
         if "tube" in entity["modes"] or "tflrail" in entity["modes"]:
             for line_mode in entity["lineModeGroups"]:
-                #check if the station (aka entity) is served by more than one tube line. If so tack on the line name onto the station name
-                if line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) > 1:
-                    expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
-                    for expanded_station_name in expanded_station_names:
+                if line_mode["modeName"] == "tube":
+                    for line_name in line_mode["lineIdentifier"]:
+                        # print(entity["commonName"],line_name)
                         station_data = {}
-                        station_data["station_name"] = expanded_station_name + "- " + line.capitalize() + " Line"
+                        station_data["station_name"] = entity["commonName"].replace("Underground Station","") + line.capitalize() + " Line"
                         station_data["station_id"] = entity["naptanId"]
                         station_data["line_id"] = line
                         line_stations.append(station_data)
-                elif line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) == 1:
-                    station_data = {}
-                    station_data["station_name"] = entity["commonName"].replace("Underground Station","")
-                    station_data["station_id"] = entity["naptanId"]
-                    station_data["line_id"] = line
-                    line_stations.append(station_data)
+
+                #check if the station (aka entity) is served by more than one tube line. If so tack on the line name onto the station name
+                # if line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) > 1:
+                #     expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
+                #     for expanded_station_name in expanded_station_names:
+                #         station_data = {}
+                #         station_data["station_name"] = expanded_station_name + "- " + line.capitalize() + " Line"
+                #         station_data["station_id"] = entity["naptanId"]
+                #         station_data["line_id"] = line
+                #         line_stations.append(station_data)
+                # elif line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) == 1:
+                #     station_data = {}
+                #     station_data["station_name"] = entity["commonName"].replace("Underground Station","")
+                #     station_data["station_id"] = entity["naptanId"]
+                #     station_data["line_id"] = line
+                #     line_stations.append(station_data)
 
                 if line_mode["modeName"] == "tflrail" and len(line_mode["lineIdentifier"]) > 1:
                     expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
@@ -85,7 +96,7 @@ def create_station_data():
        writes the station data to a file which then serves as
        the source data for the station search on the index view"""
 
-    file = "station_names_v2.json"
+    file = "station_names_v4.json"
 
     for line in lines:
         get_stops_for_line(line)

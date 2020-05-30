@@ -30,7 +30,7 @@ def station_arrivals():
     This seems to affect responses where the line is London Overground and specific stations e.g. Hackney Downs
     so not sure the frequency of this type of response.
     Additionally passing the arrivals_info dict to the UI template with non-exist arrivals was causing the
-    application to crash as it expects values to process  
+    application to crash as it expects values to process
     """
     keys_to_remove = list()
     for key,value in arrivals_info.items():
@@ -72,8 +72,8 @@ def get_stations():
     return tube_stops_list
 
 def station_data():
-    if os.path.isfile("station_names_v2.json"):
-        with open("station_names_v2.json","r") as stations:
+    if os.path.isfile("station_names_v4.json"):
+        with open("station_names_v4.json","r") as stations:
             return json.load(stations)
 
 if __name__ == "__main__":
