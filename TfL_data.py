@@ -4,16 +4,19 @@ import arrow
 from operator import itemgetter
 from math import floor
 
-# lines list is used to generate station names
+# lines list is used to generate station names, each element is a line ID
 lines = ["bakerloo","central","circle","district","hammersmith-city","jubilee",
          "metropolitan","northern","piccadilly","victoria","waterloo-city",
-         "tfl-rail","london-overground"]
+         "tfl-rail","london-overground","dlr"]
+
+# lines = ["london-overground","metropolitan","central","circle"]
 
 # brand_colours dict is used to pass correct line branding to views
 brand_colours = {"bakerloo" : "#B36305", "central" : "#E32017", "circle" : "#FFD300",
                  "district" : "#00782A", "hammersmith-city" : "#F3A9BB", "metropolitan" : "#9B0056",
                  "northern" : "#000000", "piccadilly" : "#003688", "victoria" : "#0098D4",
-                 "waterloo-city" : "#95CDBA", "jubilee" : "#A0A5A9"}
+                 "waterloo-city" : "#95CDBA", "jubilee" : "#A0A5A9", "tfl-rail" :"#1c3f94",
+                 "london-overground" : "#e86a10","dlr" : "#00AFAD"}
 
 # list to hold all the station names that will present on index view
 stations = list()
@@ -30,7 +33,7 @@ def get_stops_for_line(line):
         The TFL API includes the phrase 'Underground Station' appended to
         all station names. For the station selection input list this phrase is stripped out"""
 
-    print("Getting stops for {}".format(line))
+    print("Getting Stops for {}".format(line))
     line_stations = list()
 
     #set the url for API call
@@ -42,26 +45,43 @@ def get_stops_for_line(line):
     line_station_data = connection.read().decode("utf8")
     #parse line_data into Python data structure
     json_data = json.loads(line_station_data)
+    modes_of_interest = ["tube","tflrail","dlr","overground"]
 
     for entity in json_data:
-        if "tube" in entity["modes"]:
+        if any(item in modes_of_interest for item in entity["modes"]):
+        # if "tube" in entity["modes"] or "tflrail" in entity["modes"] or "dlr" in entity["modes"]:
             for line_mode in entity["lineModeGroups"]:
-                #check if the station (aka entity) is served by more than one tube line. If so tack on the line to the station name
-                if line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) > 1:
-                    expanded_station_names = expand_station_name(entity["commonName"],line_mode["lineIdentifier"])
-                    for expanded_station_name in expanded_station_names:
+                if line_mode["modeName"] == "tube":
+                    for line_name in line_mode["lineIdentifier"]:
+                        # print(entity["commonName"],line_name)
                         station_data = {}
-                        station_data["station_name"] = expanded_station_name + "- " + line.capitalize() + " Line"
+                        station_data["station_name"] = entity["commonName"].replace("Underground Station","") + line.capitalize() + " Line"
                         station_data["station_id"] = entity["naptanId"]
                         station_data["line_id"] = line
                         line_stations.append(station_data)
-                elif line_mode["modeName"] == "tube" and len(line_mode["lineIdentifier"]) == 1:
+
+                if line_mode["modeName"] == "tflrail":
                     station_data = {}
-                    station_data["station_name"] = entity["commonName"].replace("Underground Station","")
+                    station_data["station_name"] = entity["commonName"].replace("Rail Station","") + line.capitalize() + " Line"
                     station_data["station_id"] = entity["naptanId"]
                     station_data["line_id"] = line
                     line_stations.append(station_data)
 
+                if line_mode["modeName"] == "dlr":
+                    station_data = {}
+                    station_data["station_name"] = entity["commonName"]
+                    station_data["station_id"] = entity["naptanId"]
+                    station_data["line_id"] = line
+                    line_stations.append(station_data)
+
+                if line_mode["modeName"] == "overground":
+                    station_data = {}
+                    station_data["station_name"] = entity["commonName"]
+                    station_data["station_id"] = entity["naptanId"]
+                    station_data["line_id"] = line
+                    line_stations.append(station_data)
+
+    print("{} has {} len".format(line,len(line_stations)))
     stations.extend(line_stations)
 
 def create_station_data():
@@ -70,7 +90,7 @@ def create_station_data():
        writes the station data to a file which then serves as
        the source data for the station search on the index view"""
 
-    file = "station_names.json"
+    file = "station_names_v4.json"
 
     for line in lines:
         get_stops_for_line(line)
@@ -116,6 +136,7 @@ def get_arrivals_for_station(line_id,station_id):
                                                     "station" : train['stationName'],
                                                     "platform" : train['platformName'],
                                                     "towards" : train["towards"],
+                                                    "destination_name" : train["destinationName"],
                                                     "arriving_in" : floor(train["timeToStation"] / 60),
                                                     "time_expected" : arrow.get(train['expectedArrival']).to('Europe/London').format('HH:mm'),
                                                     "currently_at" : train['currentLocation'],
