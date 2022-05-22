@@ -7,7 +7,8 @@ Tube Arrivals is a responsive minimalist application that does one concise thing
 ## Setting up and running application
 After you’ve downloaded the source code it’s worth [creating a virtual environment](https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/26/python-virtual-env/) to keep a separation between python libraries you may have installed locally and the ones used by this application.  
 Once virtual environment is activated from the command line run:  
-* pip install flask 
+* pip install flask
+* pip install -U arrow
    
 To start the application:  
 * python main.py
